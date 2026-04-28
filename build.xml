@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project name="BSE3" default="compile">
+    <property file="build.properties" />
+
+    <path id="classpath">
+        <fileset dir="${lib}" includes="*.jar" />
+        <fileset dir="${src.java}" includes="*.java" />
+    </path>
+
+    <target name="compile">
+        <echo message="====== Start compiling ======" />
+        <mkdir dir="${build.classes}" />
+        <javac srcdir="${src.main}" destdir="${build.classes}" classpathref="classpath" includeantruntime="false" />
+        <echo message="======  End compiling  ======" />
+    </target>
+
+    <target name="build" depends="compile">
+        <echo message="====== Start building ======" />
+
+        <copy todir="${build.web.inf}/classes">
+            <fileset dir="${resources}" />
+        </copy>
+        <copy todir="${build.ar}">
+            <fileset dir="${src.web}" />
+        </copy>
+        <copy todir="${build.lib}">
+            <fileset dir="${lib}" />
+        </copy>
+        <copy todir="${build.web.inf}/classes">
+            <fileset dir="${build.classes}" />
+        </copy>
+
+        <jar destfile="${build}/${ant.project.name}.jar">
+            <fileset dir="${build.classes}" />
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="NoClass" />
+                <attribute name="Created-By" value="Xaabibas" />
+            </manifest>
+        </jar>
+
+        <war destfile="${build}/${ant.project.name}.war" webxml="${build.web.xml}">
+            <fileset dir="${build.ar}" />
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="NoClass" />
+                <attribute name="Created-By" value="Xaabibas" />
+            </manifest>
+        </war>
+
+        <echo message="======  End building  ======" />
+    </target>
+
+    <target name="test" depends="compile">
+
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}" />
+    </target>
+</project>
