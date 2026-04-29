@@ -7,6 +7,12 @@
         <fileset dir="${src.java}" includes="*.java" />
     </path>
 
+    <path id="classpath.test">
+        <pathelement location="${junit}" />
+        <pathelement location="${hamcrest}" />
+        <pathelement location="${build.classes}"/>
+    </path>
+
     <target name="compile">
         <echo message="====== Start compiling ======" />
         <mkdir dir="${build.classes}" />
@@ -51,8 +57,30 @@
         <echo message="======  End building  ======" />
     </target>
 
-    <target name="test" depends="compile">
+    <target name="test" depends="build">
+        <echo message="====== Start testing ======" />
 
+        <mkdir dir="${test.classes}" />
+        <mkdir dir="${test.report}" />
+
+        <javac destdir="${test.classes}" srcdir="${src.test}" includeantruntime="false">
+            <classpath refid="classpath.test" />
+        </javac>
+
+        <junit printsummary="yes" haltonfailure="true" haltonerror="true">
+            <classpath>
+                <path refid="classpath.test" />
+
+                <pathelement location="${test.classes}" />
+            </classpath>
+
+            <batchtest todir="${test.report}">
+                <formatter type="xml" />
+                <fileset dir="${src.test}" />
+            </batchtest>
+        </junit>
+
+        <echo message="======  End testing  ======" />
     </target>
 
     <target name="clean">
