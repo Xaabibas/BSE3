@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="BSE3" default="compile">
     <property file="build.properties" />
+    <property file="user.properties" />
 
     <path id="classpath">
         <fileset dir="${lib}" includes="*.jar" />
@@ -91,7 +92,17 @@
         <echo message="======  End testing  ======" />
     </target>
 
+    <!-- === 6. scp === -->
+    <target name="scp" depends="build">
+        <available file="${build}/${ant.project.name}.war" property="war.exists" />
+        <fail unless="war.exists" message="Файл ${ant.project.name}.war не найден" />
 
+        <scp file="${build.war}"
+             todir="${scp.user.name}@${scp.host}:${dest.dir}"
+             port="${scp.port}"
+             password="${scp.user.pwd}"
+             trust="true" />
+    </target>
 
     <!-- === 8. xml === -->
     <target name="xml">
