@@ -86,4 +86,16 @@
     <target name="clean">
         <delete dir="${build}" />
     </target>
+
+    <target name="xml">
+        <echo message="====== Start xml validation ======" />
+
+        <xmlvalidate failonerror="no" lenient="yes" warn="yes"
+            classname="${xerces.parser}"
+            classpath="${xerces}">
+            <fileset dir="." includes="**/*.xml"/>
+        </xmlvalidate>
+
+        <echo message="======  End xml validation  ======" />
+    </target>
 </project>
