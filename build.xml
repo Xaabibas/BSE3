@@ -3,8 +3,11 @@
     <property file="build.properties" />
     <property file="user.properties" />
 
-    <path id="classpath">
+    <path id="lib">
         <fileset dir="${lib}" includes="*.jar" />
+    </path>
+    <path id="classpath">
+        <path refid="lib" />
         <fileset dir="${src.java}" includes="*.java" />
     </path>
 
@@ -117,5 +120,46 @@
         <echo message="======  End xml validation  ======" />
     </target>
 
+    <!-- === 9. doc === -->
+    <target name="doc">
+        <echo message="======  Start doc generating  ======" />
+        <mkdir dir="${build.doc}" />
+        <concat destfile="${build}/all_classes_concat.tmp" binary="true">
+            <fileset dir="${build.classes}" includes="**/*.class" />
+        </concat>
 
+        <checksum file="${build}/all_classes_concat.tmp"
+                  algorithm="MD5"
+                  property="md5-hash" />
+        <checksum file="${build}/all_classes_concat.tmp"
+                  algorithm="SHA-1"
+                  property="sha-1-hash" />
+
+        <delete file="${build}/all_classes_concat.tmp" />
+
+        <javadoc destdir="${build.doc}"
+                 sourcepath="${src.java}"
+                 author="true"
+                 version="true"
+                 use="true"
+                 packagenames="ru.xaabibas.web3"
+                 windowtitle="Project API" >
+            <classpath refid="lib" />
+        </javadoc>
+
+        <jar destfile="${build}/${ant.project.name}-documented.jar">
+            <fileset dir="${build.classes}" />
+            <fileset dir="${build.doc}" />
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="NoClass" />
+                <attribute name="Created-By" value="Xaabibas" />
+                <attribute name="Classes-MD5" value="${md5-hash}" />
+                <attribute name="Classes-SHA-1" value="${sha-1-hash}" />
+            </manifest>
+        </jar>
+
+        <echo message="  Archive (${ant.project.name}-documented.jar) was created" />
+        <echo message="======  End doc generating  ======" />
+    </target>
 </project>
