@@ -162,4 +162,66 @@
         <echo message="  Archive (${ant.project.name}-documented.jar) was created" />
         <echo message="======  End doc generating  ======" />
     </target>
+
+    <!-- === 10. env === -->
+    <target name="env">
+        <mkdir dir="${build.env.classes}" />
+        <javac srcdir="${src.main}"
+               destdir="${build.env.classes}"
+               classpathref="classpath"
+               includeantruntime="false"
+               source="${comp.ver}">
+            <compilerarg line="${comp.args}" />
+        </javac>
+
+        <copy todir="${build.env.web.inf}/classes">
+            <fileset dir="${resources}" />
+        </copy>
+        <copy todir="${build.env.ar}">
+            <fileset dir="${src.web}" />
+        </copy>
+        <copy todir="${build.env.lib}">
+            <fileset dir="${lib}" />
+        </copy>
+        <copy todir="${build.env.web.inf}/classes">
+            <fileset dir="${build.classes}" />
+        </copy>
+
+        <war destfile="${build.env}/${ant.project.name}.war" webxml="${build.env.web.xml}">
+            <fileset dir="${build.env.ar}" />
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="NoClass" />
+                <attribute name="Created-By" value="Xaabibas" />
+            </manifest>
+        </war>
+
+        <sshsession host="${scp.host}"
+                    username="${scp.user.name}"
+                    password="${scp.user.pwd}"
+                    port="${scp.port}"
+                    trust="true">
+            <localtunnel lport="${app.port}" rhost="${app.host}" rport="${app.port}" />
+            <localtunnel lport="${app.admin.port}" rhost="${app.host}" rport="${app.admin.port}" />
+            <sequential>
+                <scp file="${build.env.war}"
+                     todir="${scp.user.name}@${scp.host}:${dest.dir}"
+                     port="${scp.port}"
+                     password="${scp.user.pwd}"
+                     trust="true" />
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="killall java" />
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="sh ${start.script} '${vm.args}'" />
+            </sequential>
+        </sshsession>
+    </target>
 </project>
