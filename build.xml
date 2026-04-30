@@ -253,4 +253,21 @@
             </sequential>
         </sshsession>
     </target>
+
+    <!-- === 14. report === -->
+    <target name="report" depends="test">
+        <copy todir=".">
+            <fileset dir="${test.report}" includes="*.xml" />
+        </copy>
+        <exec executable="git">
+            <arg value="add" />
+            <arg value="*.xml" />
+        </exec>
+
+        <exec executable="git">
+            <arg value="commit" />
+            <arg value="-m" />
+            <arg value="test report" />
+        </exec>
+    </target>
 </project>
