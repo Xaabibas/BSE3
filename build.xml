@@ -328,7 +328,7 @@
     <!-- === 13. team === -->
     <!-- stash push, checkout ~,~1,~2,~3, stash pop -->
     <target name="team">
-        <delete includeemptydirs="true">
+        <delete includeemptydirs="true" failonerror="false">
             <fileset dir="." includes="tmp*" />
             <dirset dir="." includes="tmp*" />
             <dirset dir="team" />
@@ -344,8 +344,7 @@
              includes="*.jar" />
 
         <delete includeemptydirs="true">
-            <fileset dir="." includes="tmp*" />
-            <dirset dir="." includes="tmp*" />
+            <fileset dir="." includes="tmp*/**" />
             <file file="save_tmp" />
         </delete>
     </target>
