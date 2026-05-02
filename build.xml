@@ -330,8 +330,7 @@
     <target name="team">
         <delete includeemptydirs="true">
             <fileset dir="." includes="tmp*" />
-            <dirset dir="." includes="tmp*" />
-            <dirset dir="team" />
+            <fileset dir="." includes="tmp*/**" />
         </delete>
 
         <touch file="save_tmp" />
