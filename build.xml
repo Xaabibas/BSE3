@@ -107,6 +107,17 @@
         <echo message="======  End testing  ======" />
     </target>
 
+    <!-- === 5. native2ascii === -->
+    <target name="native2ascii">
+        <mkdir dir="${build}/resources/resources-native" />
+        <native2ascii src="${resources}"
+                      includes="**/*.properties"
+                      dest="${build}/resources/resources-native"
+                      encoding="UTF-8"
+                      reverse="false" />
+
+    </target>
+
     <!-- === 6. scp === -->
     <target name="scp" depends="build">
         <available file="${build}/${ant.project.name}.war" property="war.exists" />
@@ -229,21 +240,29 @@
                     username="${scp.user.name}"
                     password="${scp.user.pwd}"
                     port="${scp.port}"
-                    trust="true">
+                    trust="true"
+                    verbose="true">
             <localtunnel lport="${app.port}" rhost="${app.host}" rport="${app.port}" />
             <localtunnel lport="${app.admin.port}" rhost="${app.host}" rport="${app.admin.port}" />
             <sequential>
-                <scp file="${build.env.war}"
-                     todir="${scp.user.name}@${scp.host}:${dest.dir}"
-                     port="${scp.port}"
-                     password="${scp.user.pwd}"
-                     trust="true" />
                 <sshexec host="${scp.host}"
                          username="${scp.user.name}"
                          password="${scp.user.pwd}"
                          port="${scp.port}"
                          trust="true"
-                         command="killall java" />
+                         command="rm -rf ${dest.dir}/${ant.project.name}.war" />
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="killall java || true" />
+                <scp file="${build.env.war}"
+                     todir="${scp.user.name}@${scp.host}:${dest.dir}"
+                     port="${scp.port}"
+                     password="${scp.user.pwd}"
+                     trust="true"
+                     verbose="true"/>
                 <sshexec host="${scp.host}"
                          username="${scp.user.name}"
                          password="${scp.user.pwd}"
