@@ -344,6 +344,7 @@
         </exec>
 
         <mkdir dir="tmp-jar" />
+        <mkdir dir="team" />
         <foreach param="i" list="1,2,3,4" target="revision" />
 
         <exec executable="git">
