@@ -333,7 +333,7 @@
             <dirset dir="." includes="tmp*" />
         </delete>
 
-        <touch file="tmp_save" />
+        <touch file="save_tmp" />
 
         <exec executable="git">
             <arg value="stash" />
@@ -357,6 +357,7 @@
         <delete>
             <fileset dir="." includes="tmp*" />
             <dirset dir="." includes="tmp*" />
+            <file file="save_tmp" />
         </delete>
     </target>
 
