@@ -47,5 +47,5 @@ user.properties
 alt
 
 ### Tmp ###
-tmp*
-team
+tmp*/**
+team/*

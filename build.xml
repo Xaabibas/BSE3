@@ -330,26 +330,14 @@
     <target name="team">
         <delete includeemptydirs="true">
             <fileset dir="." includes="tmp*" />
-            <fileset dir="." includes="tmp*/**" />
+            <dirset dir="." includes="tmp*" />
+            <dirset dir="team" />
         </delete>
 
         <touch file="save_tmp" />
 
-        <exec executable="git">
-            <arg value="stash" />
-            <arg value="push" />
-            <arg value="-m" />
-            <arg value="'Времменое сохранение'" />
-        </exec>
-
         <mkdir dir="tmp-jar" />
-        <mkdir dir="team" />
         <foreach param="i" list="1,2,3,4" target="revision" />
-
-        <exec executable="git">
-            <arg value="stash" />
-            <arg value="pop" />
-        </exec>
 
         <zip destfile="team/prev.zip"
              basedir="tmp-jar"
