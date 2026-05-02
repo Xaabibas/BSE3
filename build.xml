@@ -325,6 +325,50 @@
 
     </target>
 
+    <!-- === 13. team === -->
+    <!-- stash push, checkout ~,~1,~2,~3, stash pop -->
+    <target name="team">
+        <delete>
+            <fileset dir="." includes="tmp*" />
+            <dirset dir="." includes="tmp*" />
+        </delete>
+
+        <touch file="tmp_save" />
+
+        <exec executable="git">
+            <arg value="stash" />
+            <arg value="push" />
+            <arg value="-m" />
+            <arg value="'Времменое сохранение'" />
+        </exec>
+
+        <mkdir dir="tmp-jar" />
+        <foreach param="i" list="1,2,3,4" target="revision" />
+
+        <exec executable="git">
+            <arg value="stash" />
+            <arg value="pop" />
+        </exec>
+    </target>
+
+    <target name="revision">
+        <exec executable="git">
+            <arg value="checkout" />
+            <arg value="HEAD~1" />
+        </exec>
+
+        <antcall target="build">
+            <param name="build" value="tmp${i}" />
+            <param name="build.classes" value="tmp${i}/classes" />
+            <param name="build.ar" value="tmp${i}/${ant.project.name}" />
+            <param name="build.web.inf" value="tmp${i}/${ant.project.name}/WEB-INF" />
+            <param name="build.lib" value="tmp${i}/${ant.project.name}/WEB-INF/lib" />
+            <param name="build.web.xml" value="tmp${i}/${ant.project.name}/WEB-INF/web.xml" />
+        </antcall>
+
+        <move file="tmp${i}/${ant.project.name}.jar" tofile="tmp-jar/${ant.project.name}~${i}.jar" />
+    </target>
+
     <!-- === 14. report === -->
     <target name="report" depends="test">
         <copy todir=".">
