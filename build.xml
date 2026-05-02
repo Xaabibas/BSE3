@@ -395,4 +395,42 @@
             <arg value="test report" />
         </exec>
     </target>
+
+    <!-- === 15. diff === -->
+    <target name="diff">
+        <exec executable="git" outputproperty="git.status">
+            <arg value="status" />
+            <arg value="--porcelain" />
+        </exec>
+
+        <loadresource property="important.changes">
+            <string value="${git.status}" />
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern=" M ${important.files.pattern}" />
+                </linecontainsregexp>
+            </filterchain>
+        </loadresource>
+
+        <if>
+            <isset property="important.changes" />
+            <then>
+                <echo message="Found changes in patterned files" />
+                <echo message="Changes won't be commited" />
+            </then>
+            <else>
+                <echo message="Found no changes in patterned files" />
+                <echo message="Changes will be commited" />
+                <exec executable="git">
+                    <arg value="add" />
+                    <arg value="--all" />
+                </exec>
+                <exec executable="git">
+                    <arg value="commit" />
+                    <arg value="-m" />
+                    <arg value="no changes in patterned files, commit by diff target" />
+                </exec>
+            </else>
+        </if>
+    </target>
 </project>
