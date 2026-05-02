@@ -28,7 +28,7 @@ public class AttemptKeeper {
     @Transactional
     public void add(Attempt attempt) {
         try {
-            userTransaction.begin();
+            userTransaction.begin()
 
             processAttempt(attempt);
             entityManager.persist(attempt);
