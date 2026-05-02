@@ -286,7 +286,9 @@
             <arg value="HEAD" />
         </exec>
 
-        <antcall target="history-recursive" />
+        <antcall target="history-recursive">
+            <param name="i" value="1" />
+        </antcall>
 
         <exec executable="git">
             <arg value="checkout" />
@@ -308,20 +310,31 @@
                 <echo message="Couldn't compile the files" />
                 <echo message="Checkout the previous commit" />
 
+                <exec executable="git" outputproperty="git.diff">
+                    <arg value="diff" />
+                </exec>
+
+                <echo message="${git.diff}" />
+
                 <exec executable="git">
                     <arg value="checkout" />
-                    <arg value="HEAD~1" />
+                    <arg value="HEAD~${i}" />
                     <arg value="--" />
                     <arg value="${src}" />
                 </exec>
 
-                <antcall target="history-help" />
+                <antcall target="history-help">
+                    <param name="i" value="${i}" />
+                </antcall>
             </catch>
         </trycatch>
     </target>
 
     <target name="history-help">
-        <antcall target="history-recursive" />
+        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+        <antcall target="history-recursive">
+            <param name="i" value="${i}" />
+        </antcall>
     </target>
 
     <!-- === 12. alt === -->
