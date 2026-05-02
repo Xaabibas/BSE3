@@ -328,9 +328,10 @@
     <!-- === 13. team === -->
     <!-- stash push, checkout ~,~1,~2,~3, stash pop -->
     <target name="team">
-        <delete>
+        <delete includeemptydirs="true">
             <fileset dir="." includes="tmp*" />
             <dirset dir="." includes="tmp*" />
+            <dirset dir="team" />
         </delete>
 
         <touch file="save_tmp" />
@@ -354,7 +355,7 @@
              basedir="tmp-jar"
              includes="*.jar" />
 
-        <delete>
+        <delete includeemptydirs="true">
             <fileset dir="." includes="tmp*" />
             <dirset dir="." includes="tmp*" />
             <file file="save_tmp" />
