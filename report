@@ -1,0 +1,1393 @@
+diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index 7729bfc..e6f058b 100644
+--- a/build.xml
++++ b/build.xml
+@@ -288,7 +288,6 @@
+ 
+         <antcall target="history-recursive">
+             <param name="i" value="1" />
+-            <param name="prev" value="0" />
+         </antcall>
+ 
+         <exec executable="git">
+@@ -311,17 +310,11 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <echo message="git diff HEAD~${i} HEAD~${prev}" />
+-
+-                <var name="git.diff" unset="true"/>
+-
+                 <exec executable="git" outputproperty="git.diff">
+                     <arg value="diff" />
+-                    <arg value="HEAD~${prev}" />
+-                    <arg value="HEAD~${i}" />
+                 </exec>
+ 
+-                <echo file="report" append="true" message="${git.diff}" />
++                <echo message="${git.diff}" />
+ 
+                 <exec executable="git">
+                     <arg value="checkout" />
+@@ -338,11 +331,9 @@
+     </target>
+ 
+     <target name="history-help">
+-        <var name="j" value="${i}"/>
+-        <math result="j" operand1="${i}" operation="+" operand2="1" datatype="int" />
++        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+         <antcall target="history-recursive">
+-            <param name="i" value="${j}" />
+-            <param name="prev" value="${i}" />
++            <param name="i" value="${i}" />
+         </antcall>
+     </target>
+ 
+diff --git a/report b/report
+deleted file mode 100644
+index 1e87da8..0000000
+--- a/report
++++ /dev/null
+@@ -1,74 +0,0 @@
+-diff --git a/build.xml b/build.xml
+-index e6f058b..8766643 100644
+---- a/build.xml
+-+++ b/build.xml
+-@@ -286,9 +286,7 @@
+-             <arg value="HEAD" />
+-         </exec>
+- 
+--        <antcall target="history-recursive">
+--            <param name="i" value="1" />
+--        </antcall>
+-+        <antcall target="history-recursive" />
+- 
+-         <exec executable="git">
+-             <arg value="checkout" />
+-@@ -310,31 +308,20 @@
+-                 <echo message="Couldn't compile the files" />
+-                 <echo message="Checkout the previous commit" />
+- 
+--                <exec executable="git" outputproperty="git.diff">
+--                    <arg value="diff" />
+--                </exec>
+--
+--                <echo message="${git.diff}" />
+--
+-                 <exec executable="git">
+-                     <arg value="checkout" />
+--                    <arg value="HEAD~${i}" />
+-+                    <arg value="HEAD~1" />
+-                     <arg value="--" />
+-                     <arg value="${src}" />
+-                 </exec>
+- 
+--                <antcall target="history-help">
+--                    <param name="i" value="${i}" />
+--                </antcall>
+-+                <antcall target="history-help" />
+-             </catch>
+-         </trycatch>
+-     </target>
+- 
+-     <target name="history-help">
+--        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+--        <antcall target="history-recursive">
+--            <param name="i" value="${i}" />
+--        </antcall>
+-+        <antcall target="history-recursive" />
+-     </target>
+- 
+-     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+-index c0b3363..e7cc650 100644
+---- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+-+++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+-@@ -28,7 +28,7 @@ public class AttemptKeeper {
+-     @Transactional
+-     public void add(Attempt attempt) {
+-         try {
+--            userTransaction.begin()
+-+            userTransaction.begin();
+- 
+-             processAttempt(attempt);
+-             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+-index 2cd1460..59778d3 100644
+---- a/src/main/java/ru/xaabibas/web3/Checker.java
+-+++ b/src/main/java/ru/xaabibas/web3/Checker.java
+-@@ -15,7 +15,7 @@ public class Checker {
+-             return x*x + y*y <= r*r;
+-         }
+-         if (x >= 0 && y < 0) {
+--            return y >= 2 * x - r
+-+            return y >= 2 * x - r;
+-         }
+-         if (x < 0 && y <= 0) {
+-             return x >= -r && y >= -r;
+\ No newline at end of file
+diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index e7cc650..c0b3363 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin();
++            userTransaction.begin()
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);
+diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 59778d3..2cd1460 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r;
++            return y >= 2 * x - r
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;diff --git a/build.xml b/build.xml
+index e6f058b..8766643 100644
+--- a/build.xml
++++ b/build.xml
+@@ -286,9 +286,7 @@
+             <arg value="HEAD" />
+         </exec>
+ 
+-        <antcall target="history-recursive">
+-            <param name="i" value="1" />
+-        </antcall>
++        <antcall target="history-recursive" />
+ 
+         <exec executable="git">
+             <arg value="checkout" />
+@@ -310,31 +308,20 @@
+                 <echo message="Couldn't compile the files" />
+                 <echo message="Checkout the previous commit" />
+ 
+-                <exec executable="git" outputproperty="git.diff">
+-                    <arg value="diff" />
+-                </exec>
+-
+-                <echo message="${git.diff}" />
+-
+                 <exec executable="git">
+                     <arg value="checkout" />
+-                    <arg value="HEAD~${i}" />
++                    <arg value="HEAD~1" />
+                     <arg value="--" />
+                     <arg value="${src}" />
+                 </exec>
+ 
+-                <antcall target="history-help">
+-                    <param name="i" value="${i}" />
+-                </antcall>
++                <antcall target="history-help" />
+             </catch>
+         </trycatch>
+     </target>
+ 
+     <target name="history-help">
+-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+-        <antcall target="history-recursive">
+-            <param name="i" value="${i}" />
+-        </antcall>
++        <antcall target="history-recursive" />
+     </target>
+ 
+     <!-- === 12. alt === -->diff --git a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+index c0b3363..e7cc650 100644
+--- a/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
++++ b/src/main/java/ru/xaabibas/web3/AttemptKeeper.java
+@@ -28,7 +28,7 @@ public class AttemptKeeper {
+     @Transactional
+     public void add(Attempt attempt) {
+         try {
+-            userTransaction.begin()
++            userTransaction.begin();
+ 
+             processAttempt(attempt);
+             entityManager.persist(attempt);diff --git a/src/main/java/ru/xaabibas/web3/Checker.java b/src/main/java/ru/xaabibas/web3/Checker.java
+index 2cd1460..59778d3 100644
+--- a/src/main/java/ru/xaabibas/web3/Checker.java
++++ b/src/main/java/ru/xaabibas/web3/Checker.java
+@@ -15,7 +15,7 @@ public class Checker {
+             return x*x + y*y <= r*r;
+         }
+         if (x >= 0 && y < 0) {
+-            return y >= 2 * x - r
++            return y >= 2 * x - r;
+         }
+         if (x < 0 && y <= 0) {
+             return x >= -r && y >= -r;

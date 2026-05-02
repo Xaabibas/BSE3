@@ -287,13 +287,14 @@
         </exec>
 
         <antcall target="history-recursive">
-            <param name="i" value="1" />
+            <param name="i" value="2" />
+            <param name="prev" value="1" />
         </antcall>
 
-        <exec executable="git">
-            <arg value="checkout" />
-            <arg value="${git.current.branch}" />
-        </exec>
+<!--        <exec executable="git">-->
+<!--            <arg value="checkout" />-->
+<!--            <arg value="${git.current.branch}" />-->
+<!--        </exec>-->
     </target>
 
     <target name="history-recursive">
@@ -310,11 +311,17 @@
                 <echo message="Couldn't compile the files" />
                 <echo message="Checkout the previous commit" />
 
+                <echo message="git diff HEAD~${i} HEAD~${prev}" />
+
+                <var name="git.diff" unset="true"/>
+
                 <exec executable="git" outputproperty="git.diff">
                     <arg value="diff" />
+                    <arg value="HEAD~${prev}" />
+                    <arg value="HEAD~${i}" />
                 </exec>
 
-                <echo message="${git.diff}" />
+                <echo file="report" append="true" message="${git.diff}" />
 
                 <exec executable="git">
                     <arg value="checkout" />
@@ -331,9 +338,11 @@
     </target>
 
     <target name="history-help">
-        <math result="i" operand1="${i}" operation="+" operand2="1" datatype="int" />
+        <var name="j" value="${i}"/>
+        <math result="j" operand1="${i}" operation="+" operand2="1" datatype="int" />
         <antcall target="history-recursive">
-            <param name="i" value="${i}" />
+            <param name="i" value="${j}" />
+            <param name="prev" value="${i}" />
         </antcall>
     </target>
 
@@ -491,5 +500,111 @@
                 </exec>
             </else>
         </if>
+    </target>
+
+    <target name="dop">
+        <exec executable="git" outputproperty="git.current.branch">
+            <arg value="rev-parse" />
+            <arg value="--abbrev-ref" />
+            <arg value="HEAD" />
+        </exec>
+
+
+        <mkdir dir="${build.env.classes}" />
+        <javac srcdir="${src.main}"
+               destdir="${build.env.classes}"
+               classpathref="classpath"
+               includeantruntime="false"
+               source="${comp.ver}">
+            <compilerarg line="${comp.args}" />
+        </javac>
+
+        <copy todir="${build.env.web.inf}/classes">
+            <fileset dir="${resources}" />
+        </copy>
+        <copy todir="${build.env.ar}">
+            <fileset dir="${src.web}" />
+        </copy>
+        <copy todir="${build.env.lib}">
+            <fileset dir="${lib}" />
+        </copy>
+        <copy todir="${build.env.web.inf}/classes">
+            <fileset dir="${build.classes}" />
+        </copy>
+
+        <war destfile="${build.env}/${ant.project.name}-new.war" webxml="${build.env.web.xml}">
+            <fileset dir="${build.env.ar}" />
+            <manifest>
+                <attribute name="Manifest-Version" value="1.0" />
+                <attribute name="Main-Class" value="NoClass" />
+                <attribute name="Created-By" value="Xaabibas" />
+            </manifest>
+        </war>
+
+        <sshsession host="${scp.host}"
+                    username="${scp.user.name}"
+                    password="${scp.user.pwd}"
+                    port="${scp.port}"
+                    trust="true"
+                    verbose="true">
+            <sequential>
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="rm -rf ${dest.dir}/${ant.project.name}-new.war" />
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="killall java || true" />
+                <scp file="${build.env}/${ant.project.name}-new.war"
+                     todir="${scp.user.name}@${scp.host}:${dest.dir}"
+                     port="${scp.port}"
+                     password="${scp.user.pwd}"
+                     trust="true"
+                     verbose="true"/>
+            </sequential>
+        </sshsession>
+
+
+        <exec executable="git">
+            <arg value="checkout" />
+            <arg value="HEAD~1" />
+            <arg value="--" />
+            <arg value="${src}" />
+        </exec>
+
+        <antcall target="history" />
+
+        <antcall target="build" />
+
+        <antcall target="scp" />
+        <sshsession host="${scp.host}"
+                    username="${scp.user.name}"
+                    password="${scp.user.pwd}"
+                    port="${scp.port}"
+                    trust="true"
+                    verbose="true">
+            <localtunnel lport="${app.port}" rhost="${app.host}" rport="${app.port}" />
+            <localtunnel lport="${app.admin.port}" rhost="${app.host}" rport="${app.admin.port}" />
+            <sequential>
+                <sshexec host="${scp.host}"
+                         username="${scp.user.name}"
+                         password="${scp.user.pwd}"
+                         port="${scp.port}"
+                         trust="true"
+                         command="sh ${start.script} '${vm.args}'" />
+            </sequential>
+        </sshsession>
+
+        <exec executable="git">
+            <arg value="checkout" />
+            <arg value="${git.current.branch}" />
+            <arg value="--" />
+            <arg value="src" />
+        </exec>
     </target>
 </project>
