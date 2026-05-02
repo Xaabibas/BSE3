@@ -278,6 +278,52 @@
         </sshsession>
     </target>
 
+    <!-- === 11. history === -->
+    <target name="history">
+        <exec executable="git" outputproperty="git.current.branch">
+            <arg value="rev-parse" />
+            <arg value="--abbrev-ref" />
+            <arg value="HEAD" />
+        </exec>
+
+        <antcall target="history-recursive" />
+
+        <exec executable="git">
+            <arg value="checkout" />
+            <arg value="${git.current.branch}" />
+        </exec>
+    </target>
+
+    <target name="history-recursive">
+        <trycatch>
+            <try>
+                <echo message="Trying compile files" />
+
+                <antcall target="compile" />
+
+                <echo message="Successfully compiled!" />
+                <echo message="Exit the recursive" />
+            </try>
+            <catch>
+                <echo message="Couldn't compile the files" />
+                <echo message="Checkout the previous commit" />
+
+                <exec executable="git">
+                    <arg value="checkout" />
+                    <arg value="HEAD~1" />
+                    <arg value="--" />
+                    <arg value="${src}" />
+                </exec>
+
+                <antcall target="history-help" />
+            </catch>
+        </trycatch>
+    </target>
+
+    <target name="history-help">
+        <antcall target="history-recursive" />
+    </target>
+
     <!-- === 12. alt === -->
     <target name="alt">
         <delete dir="${alt}" />
