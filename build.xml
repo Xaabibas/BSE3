@@ -33,7 +33,10 @@
     <target name="compile">
         <echo message="====== Start compiling ======" />
         <mkdir dir="${build.classes}" />
-        <javac srcdir="${src.main}" destdir="${build.classes}" classpathref="classpath" includeantruntime="false" />
+        <javac srcdir="${src.main}"
+               destdir="${build.classes}"
+               classpathref="classpath"
+               includeantruntime="false" />
         <echo message="======  End compiling  ======" />
     </target>
 
@@ -62,6 +65,8 @@
                 <attribute name="Created-By" value="Xaabibas" />
             </manifest>
         </jar>
+
+        <echo message="${build.web.xml}" />
 
         <war destfile="${build}/${ant.project.name}.war" webxml="${build.web.xml}">
             <fileset dir="${build.ar}" />
@@ -271,6 +276,53 @@
                          command="sh ${start.script} '${vm.args}'" />
             </sequential>
         </sshsession>
+    </target>
+
+    <!-- === 12. alt === -->
+    <target name="alt">
+        <delete dir="${alt}" />
+        <mkdir dir="${alt.src}" />
+        <mkdir dir="${alt.build}" />
+
+        <copy todir="${alt.src}" verbose="true">
+            <fileset dir="${src}" includes="**/*Attempt*.java" />
+            <mapper type="regexp" from="(.*)Attempt(.*)\.java" to="\1${alt.Attempt}\2.java" />
+        </copy>
+
+        <copy todir="${alt.src}">
+            <fileset dir="${src}" includes="**/*Point*.java" />
+            <mapper type="regexp" from="(.*)Point(.*)\.java" to="\1${alt.Point}\2.java" />
+        </copy>
+
+        <copy todir="${alt.src}">
+            <fileset dir="${src}" includes="**/*Checker*.java" />
+            <mapper type="regexp" from="(.*)Checker(.*)\.java" to="\1${alt.Checker}\2.java" />
+        </copy>
+
+        <copy todir="${alt.src}">
+            <fileset dir="${src}" excludes="**/*Attempt*.java,**/*Point*.java,**/*Checker*.java" />
+        </copy>
+
+        <replace dir="${alt.src}">
+            <replacefilter token="Attempt" value="${alt.Attempt}" />
+            <replacefilter token="Point" value="${alt.Point}" />
+            <replacefilter token="Checker" value="${alt.Checker}" />
+            <replacefilter token="attempt" value="${alt.attempt}" />
+            <replacefilter token="point" value="${alt.point}" />
+            <replacefilter token="checker" value="${alt.checker}" />
+        </replace>
+
+        <antcall target="build">
+            <param name="src.main" value="${alt.src.main}" />
+            <param name="build.classes" value="${alt.build.classes}" />
+            <param name="build.web.inf" value="${alt.build.web.inf}" />
+            <param name="build.ar" value="${alt.build.ar}" />
+            <param name="src.web" value="${alt.src.web}" />
+            <param name="build.lib" value="${alt.build.lib}" />
+            <param name="build" value="${alt.build}" />
+            <param name="build.web.xml" value="${alt.build.web.xml}" />
+        </antcall>
+
     </target>
 
     <!-- === 14. report === -->
